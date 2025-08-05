@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestionnaire de Tournoi de Belote</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --border-color: #e0e0e0;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--card-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .input-group input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .button-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .button-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .button-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .button-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .player-list, .team-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .player-list li, .team-list li {
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .team-list li {
+            font-weight: bold;
+        }
+
+        .score-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .score-form > div {
+            display: flex;
+            gap: 5px;
+        }
+
+        .score-form label {
+            text-align: right;
+            padding-right: 10px;
+        }
+        
+        .score-form input[type="number"] {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        .score-form .button-success {
+            grid-column: span 3;
+        }
+
+        .game-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .game-list li {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .ranking-table th, .ranking-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ranking-table th {
+            background-color: var(--background-color);
+            font-weight: 600;
+        }
+        
+        .ranking-table tbody tr:nth-child(even) {
+            background-color: #f1f3f5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Gestionnaire de Tournoi de Belote</h1>
+
+    <div class="card">
+        <div class="card-header">1. Inscription des joueurs</div>
+        <div class="input-group">
+            <input type="text" id="playerNameInput" placeholder="Nom du joueur">
+            <button class="button button-primary" onclick="addPlayer()">Ajouter</button>
+        </div>
+        <ul id="playerList" class="player-list"></ul>
+        <button class="button button-success" id="drawTeamsBtn" onclick="drawTeams()" disabled>Tirer les équipes</button>
+    </div>
+
+    <div class="card" id="teamsSection" style="display: none;">
+        <div class="card-header">2. Équipes</div>
+        <ul id="teamList" class="team-list"></ul>
+    </div>
+
+    <div class="card" id="gamesSection" style="display: none;">
+        <div class="card-header">3. Enregistrer un match</div>
+        <div class="score-form">
+            <div>
+                <label for="team1Select">Équipe 1:</label>
+                <select id="team1Select"></select>
+            </div>
+            <div>
+                <label for="score1Input">Score:</label>
+                <input type="number" id="score1Input" min="0" value="0">
+            </div>
+            <div>
+                <label for="team2Select">Équipe 2:</label>
+                <select id="team2Select"></select>
+            </div>
+            <div>
+                <label for="score2Input">Score:</label>
+                <input type="number" id="score2Input" min="0" value="0">
+            </div>
+            <button class="button button-success" onclick="recordGame()">Enregistrer la partie</button>
+        </div>
+        <hr style="margin: 20px 0;">
+        <div class="card-header">Parties jouées</div>
+        <ul id="gamesPlayedList" class="game-list"></ul>
+    </div>
+
+    <div class="card" id="rankingSection" style="display: none;">
+        <div class="card-header">4. Classement</div>
+        <table class="ranking-table">
+            <thead>
+                <tr>
+                    <th>Rang</th>
+                    <th>Équipe</th>
+                    <th>Points</th>
+                    <th>Victoires</th>
+                    <th>Défaites</th>
+                </tr>
+            </thead>
+            <tbody id="rankingBody">
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // --- VARIABLES GLOBALES ---
+    let players = [];
+    let teams = [];
+    let games = [];
+    let ranking = {};
+    const MAX_GAMES_BETWEEN_TEAMS = 1; // Limite le nombre de parties entre les mêmes équipes
+
+    // --- SÉLECTION DES ÉLÉMENTS DU DOM ---
+    const playerNameInput = document.getElementById('playerNameInput');
+    const playerList = document.getElementById('playerList');
+    const drawTeamsBtn = document.getElementById('drawTeamsBtn');
+    const teamsSection = document.getElementById('teamsSection');
+    const teamList = document.getElementById('teamList');
+    const gamesSection = document.getElementById('gamesSection');
+    const team1Select = document.getElementById('team1Select');
+    const score1Input = document.getElementById('score1Input');
+    const team2Select = document.getElementById('team2Select');
+    const score2Input = document.getElementById('score2Input');
+    const gamesPlayedList = document.getElementById('gamesPlayedList');
+    const rankingSection = document.getElementById('rankingSection');
+    const rankingBody = document.getElementById('rankingBody');
+
+    // --- FONCTIONS DE GESTION DES JOUEURS ---
+    function addPlayer() {
+        const playerName = playerNameInput.value.trim();
+        if (playerName && !players.includes(playerName)) {
+            players.push(playerName);
+            playerNameInput.value = '';
+            updatePlayerList();
+            checkPlayerCount();
+        }
+    }
+
+    function removePlayer(name) {
+        players = players.filter(player => player !== name);
+        updatePlayerList();
+        checkPlayerCount();
+    }
+
+    function updatePlayerList() {
+        playerList.innerHTML = '';
+        players.forEach(player => {
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <span>${player}</span>
+                <button class="button button-danger" onclick="removePlayer('${player}')">X</button>
+            `;
+            playerList.appendChild(li);
+        });
+    }
+
+    function checkPlayerCount() {
+        drawTeamsBtn.disabled = players.length < 4 || players.length % 2 !== 0;
+    }
+    
+    // Ajout d'un joueur en pressant "Entrée"
+    playerNameInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            addPlayer();
+        }
+    });
+
+    // --- FONCTIONS DE GESTION DES ÉQUIPES ---
+    function drawTeams() {
+        if (players.length < 4 || players.length % 2 !== 0) {
+            alert("Il faut au moins 4 joueurs et un nombre pair pour former des équipes.");
+            return;
+        }
+
+        // Mélange aléatoire des joueurs (Algorithme de Fisher-Yates)
+        let shuffledPlayers = [...players];
+        for (let i = shuffledPlayers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledPlayers[i], shuffledPlayers[j]] = [shuffledPlayers[j], shuffledPlayers[i]];
+        }
+
+        // Création des équipes
+        teams = [];
+        for (let i = 0; i < shuffledPlayers.length; i += 2) {
+            const teamName = `${shuffledPlayers[i]} & ${shuffledPlayers[i+1]}`;
+            teams.push(teamName);
+            ranking[teamName] = { points: 0, wins: 0, losses: 0 };
+        }
+
+        updateTeamList();
+        updateGameSelectors();
+        
+        teamsSection.style.display = 'block';
+        gamesSection.style.display = 'block';
+        rankingSection.style.display = 'block';
+        
+        drawTeamsBtn.disabled = true;
+    }
+
+    function updateTeamList() {
+        teamList.innerHTML = '';
+        teams.forEach(team => {
+            const li = document.createElement('li');
+            li.textContent = team;
+            teamList.appendChild(li);
+        });
+    }
+
+    function updateGameSelectors() {
+        team1Select.innerHTML = '';
+        team2Select.innerHTML = '';
+        teams.forEach(team => {
+            const option1 = document.createElement('option');
+            option1.value = team;
+            option1.textContent = team;
+            team1Select.appendChild(option1);
+
+            const option2 = document.createElement('option');
+            option2.value = team;
+            option2.textContent = team;
+            team2Select.appendChild(option2);
+        });
+    }
+    
+    // --- FONCTIONS DE GESTION DES PARTIES ET DU CLASSEMENT ---
+    function recordGame() {
+        const team1 = team1Select.value;
+        const team2 = team2Select.value;
+        const score1 = parseInt(score1Input.value);
+        const score2 = parseInt(score2Input.value);
+
+        if (team1 === team2) {
+            alert("Une équipe ne peut pas jouer contre elle-même.");
+            return;
+        }
+        
+        if (isNaN(score1) || isNaN(score2) || score1 < 0 || score2 < 0) {
+            alert("Veuillez saisir des scores valides.");
+            return;
+        }
+
+        // Vérification de la limitation des parties entre mêmes équipes
+        const gameKey1 = `${team1}_${team2}`;
+        const gameKey2 = `${team2}_${team1}`;
+        const playedCount = games.filter(g => g.key === gameKey1 || g.key === gameKey2).length;
+
+        if (playedCount >= MAX_GAMES_BETWEEN_TEAMS) {
+            alert(`Les équipes ${team1} et ${team2} ont déjà joué ${MAX_GAMES_BETWEEN_TEAMS} partie(s).`);
+            return;
+        }
+        
+        // Enregistrement du match
+        games.push({ team1, score1, team2, score2, key: gameKey1 });
+        
+        // Mise à jour du classement
+        updateRanking(team1, score1, team2, score2);
+
+        // Affichage des parties jouées
+        updateGamesPlayedList();
+
+        // Réinitialisation des scores pour le prochain match
+        score1Input.value = '0';
+        score2Input.value = '0';
+    }
+
+    function updateRanking(team1, score1, team2, score2) {
+        if (score1 > score2) {
+            ranking[team1].points += 2;
+            ranking[team1].wins++;
+            ranking[team2].losses++;
+        } else if (score2 > score1) {
+            ranking[team2].points += 2;
+            ranking[team2].wins++;
+            ranking[team1].losses++;
+        } else {
+            ranking[team1].points++;
+            ranking[team2].points++;
+        }
+        updateRankingTable();
+    }
+    
+    function updateGamesPlayedList() {
+        gamesPlayedList.innerHTML = '';
+        games.forEach(game => {
+            const li = document.createElement('li');
+            li.textContent = `${game.team1} (${game.score1}) vs ${game.team2} (${game.score2})`;
+            gamesPlayedList.appendChild(li);
+        });
+    }
+
+    function updateRankingTable() {
+        const sortedRanking = Object.entries(ranking).sort(([, a], [, b]) => {
+            if (b.points !== a.points) {
+                return b.points - a.points;
+            }
+            return b.wins - a.wins;
+        });
+
+        rankingBody.innerHTML = '';
+        sortedRanking.forEach(([teamName, stats], index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${teamName}</td>
+                <td>${stats.points}</td>
+                <td>${stats.wins}</td>
+                <td>${stats.losses}</td>
+            `;
+            rankingBody.appendChild(tr);
+        });
+    }
+</script>
+
+</body>
+</html>
