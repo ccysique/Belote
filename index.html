@@ -3,535 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestionnaire de Tournoi de Belote</title>
+    <title>Gestion de Tournoi de Belote</title>
     <style>
-        :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --background-color: #f8f9fa;
-            --card-background: #ffffff;
-            --border-color: #e0e0e0;
-            --text-color: #333;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
+            font-family: Arial, sans-serif;
             line-height: 1.6;
-            display: flex;
-            justify-content: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
         }
-
         .container {
             max-width: 900px;
-            width: 100%;
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: var(--card-background);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            background: white;
             padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        .card-header {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+        h1, h2 {
+            color: #2c3e50;
         }
-        
-        .setup-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
+        .form-group {
             margin-bottom: 15px;
         }
-
-        .input-group input[type="text"],
-        .input-group input[type="number"],
-        .input-group input[type="file"] {
-            flex-grow: 1;
+        input[type="text"], input[type="number"], textarea, button, select {
+            width: 100%;
             padding: 10px;
-            border: 1px solid var(--border-color);
+            margin-top: 5px;
+            border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
         }
-
-        .input-group input[type="file"] {
-            padding: 5px;
-        }
-
-        .button {
-            padding: 10px 15px;
+        button {
+            background-color: #3498db;
+            color: white;
             border: none;
-            border-radius: 4px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s, transform 0.2s;
-            white-space: nowrap;
+            font-size: 16px;
         }
-
-        .button-primary {
-            background-color: var(--primary-color);
-            color: white;
+        button:hover {
+            background-color: #2980b9;
         }
-
-        .button-secondary {
-            background-color: var(--secondary-color);
-            color: white;
+        .teams-list, .matches-list, .scoreboard {
+            margin-top: 20px;
         }
-
-        .button-success {
-            background-color: var(--success-color);
-            color: white;
-        }
-
-        .button-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .button:hover {
-            transform: translateY(-2px);
-            opacity: 0.9;
-        }
-
-        .player-list, .team-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .player-list li, .team-list li {
-            background-color: var(--background-color);
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+        .team-card {
+            background: #ecf0f1;
             padding: 10px;
             margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .team-list li {
-            font-weight: bold;
-        }
-
-        .score-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .score-form > div {
-            display: flex;
-            gap: 5px;
-        }
-
-        .score-form label {
-            text-align: right;
-            padding-right: 10px;
-        }
-        
-        .score-form input[type="number"] {
-            width: 80px;
-            padding: 8px;
-            border: 1px solid var(--border-color);
             border-radius: 4px;
         }
-
-        .score-form .button-success {
-            grid-column: span 3;
-        }
-
-        .game-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .game-list li {
+        .match-card {
+            background: #eaf1f6;
             padding: 10px;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+            border-radius: 4px;
         }
-
-        .ranking-table {
+        .match-card input[type="number"] {
+            width: 45%;
+            display: inline-block;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
+            margin-top: 10px;
         }
-
-        .ranking-table th, .ranking-table td {
+        th, td {
             text-align: left;
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
         }
-
-        .ranking-table th {
-            background-color: var(--background-color);
-            font-weight: 600;
+        th {
+            background-color: #f2f2f2;
         }
-        
-        .ranking-table tbody tr:nth-child(even) {
-            background-color: #f1f3f5;
-        }
-
-        .match-card {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-        }
-
-        .match-header {
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        #roundsSection {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Gestionnaire de Tournoi de Belote</h1>
-
-    <div class="card">
-        <div class="card-header">1. Configuration du tournoi</div>
-        <div class="setup-section">
-            <div>
-                <label for="roundNumberInput">Nombre de tours :</label>
-                <div class="input-group">
-                    <input type="number" id="roundNumberInput" value="3" min="1">
-                </div>
-                <div class="input-group">
-                    <button class="button button-secondary" onclick="generateTestData()">Mode Test</button>
-                </div>
-            </div>
-            <div>
-                <div class="card-header">Ajouter des joueurs</div>
-                <div class="input-group">
-                    <input type="text" id="playerNameInput" placeholder="Nom du joueur">
-                    <button class="button button-primary" onclick="addPlayer()">Ajouter</button>
-                </div>
-                <div class="input-group">
-                    <input type="file" id="csvFileInput" accept=".csv">
-                    <button class="button button-secondary" onclick="document.getElementById('csvFileInput').click()">Charger un .csv</button>
-                </div>
-                <div style="text-align: right; margin-top: -10px;">
-                    <a href="data:text/csv;charset=utf-8,Nom%0AAlice%0ABob%0ACharles%0ADenise" download="modele_joueurs.csv">
-                        Télécharger le modèle
-                    </a>
-                </div>
-                <ul id="playerList" class="player-list"></ul>
-                <button class="button button-success" id="startTournamentBtn" onclick="startTournament()">Démarrer le tournoi</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="card" id="teamsAndRankingSection" style="display: none;">
-        <div class="card-header">2. Équipes et Classement</div>
-        <div style="display: flex; gap: 20px;">
-            <div style="flex: 1;">
-                <div class="card-header">Équipes</div>
-                <ul id="teamList" class="team-list"></ul>
-            </div>
-            <div style="flex: 2;">
-                <div class="card-header">Classement actuel</div>
-                <table class="ranking-table">
-                    <thead>
-                        <tr>
-                            <th>Rang</th>
-                            <th>Équipe</th>
-                            <th>Points</th>
-                            <th>Victoires</th>
-                            <th>Défaites</th>
-                        </tr>
-                    </thead>
-                    <tbody id="rankingBody"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <h1>Gestion de Tournoi de Belote</h1>
     
-    <div class="card" id="roundsSection" style="display: none;">
-        <div class="card-header">3. Parties à jouer</div>
+    <section id="test-mode">
+        <h2>Mode Test Rapide</h2>
+        <div class="form-group">
+            <label for="testNumTeams">Nombre d'équipes à générer :</label>
+            <input type="number" id="testNumTeams" min="2" value="4">
         </div>
+        <div class="form-group">
+            <label for="testNumRounds">Nombre de tours :</label>
+            <input type="number" id="testNumRounds" min="1" value="3">
+        </div>
+        <button onclick="runTestMode()">Lancer un tournoi test</button>
+    </section>
 
+    <hr>
+
+    <section id="setup">
+        <h2>1. Inscription des équipes (Manuel)</h2>
+        <div class="form-group">
+            <label for="teamsManual">Entrez les équipes manuellement (une équipe par ligne, joueurs séparés par une virgule) :</label>
+            <textarea id="teamsManual" rows="4" placeholder="Équipe 1, Joueur A, Joueur B&#10;Équipe 2, Joueur C, Joueur D"></textarea>
+            <button onclick="addManualTeams()">Ajouter les équipes</button>
+        </div>
+        <hr>
+        <div class="form-group">
+            <label for="participantsList">Ou générez des équipes à partir d'une liste de participants (un nom par ligne) :</label>
+            <textarea id="participantsList" rows="4" placeholder="Joueur 1&#10;Joueur 2&#10;Joueur 3&#10;Joueur 4"></textarea>
+            <button onclick="generateRandomTeams()">Générer des équipes aléatoirement</button>
+        </div>
+    </section>
+    
+    <section id="teams-display" class="hidden">
+        <h2>2. Liste des équipes</h2>
+        <div class="teams-list" id="teamsList"></div>
+        <div class="form-group">
+            <label for="numRounds">Nombre de tours à jouer :</label>
+            <input type="number" id="numRounds" min="1" value="1">
+            <button onclick="startTournament()">Lancer le tournoi</button>
+        </div>
+    </section>
+
+    <section id="tournament-rounds" class="hidden">
+        <h2>3. Matchs par tour</h2>
+        <div id="roundsContainer"></div>
+        <button onclick="showScoreboard()">Afficher le classement</button>
+    </section>
+
+    <section id="scoreboard-section" class="hidden">
+        <h2>4. Classement</h2>
+        <div class="scoreboard" id="scoreboard"></div>
+    </section>
 </div>
 
 <script>
-    // --- VARIABLES GLOBALES ---
-    let players = [];
     let teams = [];
-    let ranking = {};
-    let allMatches = []; // Liste de tous les matchs du tournoi
-    let gamesPlayed = []; // Liste des matchs déjà joués
+    let rounds = [];
+    let numRounds = 1;
 
-    const playerNameInput = document.getElementById('playerNameInput');
-    const playerList = document.getElementById('playerList');
-    const roundNumberInput = document.getElementById('roundNumberInput');
-    const csvFileInput = document.getElementById('csvFileInput');
-    const startTournamentBtn = document.getElementById('startTournamentBtn');
-    const teamsAndRankingSection = document.getElementById('teamsAndRankingSection');
-    const teamList = document.getElementById('teamList');
-    const rankingBody = document.getElementById('rankingBody');
-    const roundsSection = document.getElementById('roundsSection');
-
-    // --- FONCTIONS DE GESTION DES JOUEURS ---
-    function addPlayer() {
-        const playerName = playerNameInput.value.trim();
-        if (playerName && !players.includes(playerName)) {
-            players.push(playerName);
-            playerNameInput.value = '';
-            updatePlayerList();
+    // Fonctions utilitaires
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
     }
 
-    function removePlayer(name) {
-        players = players.filter(player => player !== name);
-        updatePlayerList();
+    function hideAllSections() {
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('teams-display').classList.add('hidden');
+        document.getElementById('tournament-rounds').classList.add('hidden');
+        document.getElementById('scoreboard-section').classList.add('hidden');
+        document.getElementById('test-mode').classList.add('hidden');
     }
 
-    function updatePlayerList() {
-        playerList.innerHTML = '';
-        players.forEach(player => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-                <span>${player}</span>
-                <button class="button button-danger" onclick="removePlayer('${player}')">X</button>
-            `;
-            playerList.appendChild(li);
-        });
-        startTournamentBtn.disabled = players.length < 4 || players.length % 2 !== 0;
-    }
+    function runTestMode() {
+        const numTeams = parseInt(document.getElementById('testNumTeams').value);
+        const testNumRounds = parseInt(document.getElementById('testNumRounds').value);
 
-    // Gère le chargement d'un fichier CSV
-    csvFileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const content = e.target.result;
-                const newPlayers = content.split('\n')
-                                         .map(line => line.trim())
-                                         .filter(line => line && line.toLowerCase() !== 'nom'); // Ignore l'en-tête
-                
-                newPlayers.forEach(player => {
-                    if (!players.includes(player)) {
-                        players.push(player);
-                    }
-                });
-                updatePlayerList();
-            };
-            reader.readAsText(file);
-        }
-    });
-    
-    // --- MODE TEST ---
-    function generateTestData() {
-        players = ['Alice', 'Bob', 'Charles', 'Denise', 'Éric', 'Fanny', 'Gaspard', 'Hélène'];
-        updatePlayerList();
-    }
-
-    // --- FONCTIONS DE GESTION DES ÉQUIPES ET DU TOURNOI ---
-    function startTournament() {
-        if (players.length < 4 || players.length % 2 !== 0) {
-            alert("Il faut au moins 4 joueurs et un nombre pair pour démarrer le tournoi.");
+        if (numTeams < 2 || numTeams % 2 !== 0) {
+            alert("Veuillez entrer un nombre pair d'équipes (minimum 2).");
             return;
         }
 
-        // 1. Tirage des équipes
-        let shuffledPlayers = [...players];
-        for (let i = shuffledPlayers.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffledPlayers[i], shuffledPlayers[j]] = [shuffledPlayers[j], shuffledPlayers[i]];
+        if (testNumRounds < 1) {
+            alert("Le nombre de tours doit être d'au moins 1.");
+            return;
         }
 
-        teams = [];
-        for (let i = 0; i < shuffledPlayers.length; i += 2) {
-            const teamName = `${shuffledPlayers[i]} & ${shuffledPlayers[i+1]}`;
-            teams.push(teamName);
-            ranking[teamName] = { points: 0, wins: 0, losses: 0 };
+        // Génération de noms de participants pour le test
+        const participantNames = "Alice,Bob,Charlie,David,Eve,Frank,Grace,Heidi,Ivan,Judy,Karen,Liam,Mike,Nora,Oscar,Pamela,Quentin,Rose,Steve,Tina,Ulysse,Vivian,Walter,Xavier,Yara,Zack".split(',');
+        const testParticipants = [];
+        for(let i = 0; i < numTeams * 2; i++) {
+            testParticipants.push(participantNames[i % participantNames.length] + (Math.floor(i / participantNames.length) + 1));
         }
         
-        updateTeamList();
-        updateRankingTable();
+        shuffle(testParticipants);
+        teams = [];
+        for (let i = 0; i < testParticipants.length; i += 2) {
+            teams.push({
+                name: `Équipe Test ${teams.length + 1}`,
+                players: [testParticipants[i], testParticipants[i + 1]],
+                victories: 0,
+                score: 0
+            });
+        }
+
+        numRounds = testNumRounds;
+        hideAllSections();
+        startTournament();
         
-        // 2. Génération des matchs
-        const numRounds = parseInt(roundNumberInput.value, 10);
-        generateAllMatches(numRounds);
-        
-        // 3. Affichage des sections
-        teamsAndRankingSection.style.display = 'flex';
-        roundsSection.style.display = 'block';
-        
-        // Cacher la configuration après le démarrage
-        document.querySelector('.card').style.display = 'none';
+        // Saisie des scores aléatoires pour le test
+        rounds.forEach(round => {
+            round.forEach(match => {
+                match.score1 = Math.floor(Math.random() * 200) + 50; // Scores entre 50 et 249
+                match.score2 = Math.floor(Math.random() * 200) + 50;
+                match.played = true;
+            });
+        });
+        updateScoreboard();
     }
-    
-    function updateTeamList() {
-        teamList.innerHTML = '';
+
+    function generateRandomTeams() {
+        const participantsList = document.getElementById('participantsList').value;
+        const participants = participantsList.split('\n').filter(p => p.trim() !== '');
+
+        if (participants.length < 4 || participants.length % 2 !== 0) {
+            alert("Veuillez entrer un nombre pair de participants (minimum 4).");
+            return;
+        }
+
+        shuffle(participants);
+        teams = [];
+        for (let i = 0; i < participants.length; i += 2) {
+            teams.push({
+                name: `Équipe ${teams.length + 1}`,
+                players: [participants[i], participants[i + 1]],
+                victories: 0,
+                score: 0
+            });
+        }
+        hideAllSections();
+        displayTeams();
+    }
+
+    function addManualTeams() {
+        const teamsManual = document.getElementById('teamsManual').value;
+        const teamsInput = teamsManual.split('\n').filter(l => l.trim() !== '');
+        
+        if (teamsInput.length < 2) {
+            alert("Veuillez entrer au moins deux équipes.");
+            return;
+        }
+        
+        teams = teamsInput.map(line => {
+            const parts = line.split(',').map(p => p.trim());
+            return {
+                name: parts[0],
+                players: parts.slice(1),
+                victories: 0,
+                score: 0
+            };
+        });
+        hideAllSections();
+        displayTeams();
+    }
+
+    function displayTeams() {
+        document.getElementById('teams-display').classList.remove('hidden');
+        const teamsListDiv = document.getElementById('teamsList');
+        teamsListDiv.innerHTML = '';
         teams.forEach(team => {
-            const li = document.createElement('li');
-            li.textContent = team;
-            teamList.appendChild(li);
+            const card = document.createElement('div');
+            card.className = 'team-card';
+            card.innerHTML = `<strong>${team.name}</strong>: ${team.players.join(', ')}`;
+            teamsListDiv.appendChild(card);
         });
     }
 
-    function generateAllMatches(numRounds) {
-        allMatches = [];
-        let teamsAvailable = [...teams];
+    function startTournament() {
+        numRounds = parseInt(document.getElementById('numRounds').value);
+        if (isNaN(numRounds) || numRounds < 1) {
+            alert("Le nombre de tours doit être d'au moins 1.");
+            return;
+        }
         
-        for (let round = 1; round <= numRounds; round++) {
-            // Mélanger les équipes à chaque tour pour créer de nouvelles paires
-            for (let i = teamsAvailable.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [teamsAvailable[i], teamsAvailable[j]] = [teamsAvailable[j], teamsAvailable[i]];
-            }
+        hideAllSections();
+        document.getElementById('tournament-rounds').classList.remove('hidden');
+        generateRounds();
+        displayRounds();
+    }
 
-            const currentRoundMatches = [];
-            const tempTeams = [...teamsAvailable];
-            const matchups = new Set();
-            
-            // Logique pour trouver des paires qui ne se sont pas encore rencontrées
-            while (tempTeams.length > 0) {
-                const team1 = tempTeams.pop();
-                
-                let foundMatch = false;
-                for(let i = tempTeams.length - 1; i >= 0; i--) {
-                    const team2 = tempTeams[i];
-                    const gameKey = [team1, team2].sort().join('-');
-                    
-                    if (!gamesPlayed.some(game => game.key === gameKey) && !matchups.has(gameKey)) {
-                        currentRoundMatches.push({ team1, team2 });
-                        gamesPlayed.push({ key: gameKey });
-                        matchups.add(gameKey);
-                        tempTeams.splice(i, 1);
-                        foundMatch = true;
+    function generateRounds() {
+        rounds = [];
+        let allTeams = [...teams];
+        
+        const opponentsPlayed = new Map();
+        teams.forEach(team => opponentsPlayed.set(team.name, new Set()));
+
+        for (let r = 0; r < numRounds; r++) {
+            const currentRound = [];
+            let availableTeams = [...allTeams];
+            shuffle(availableTeams);
+
+            while (availableTeams.length > 0) {
+                const team1 = availableTeams.shift();
+                let team2 = null;
+
+                // Trouver un adversaire qui n'a pas encore été rencontré
+                for (let i = 0; i < availableTeams.length; i++) {
+                    const candidate = availableTeams[i];
+                    if (!opponentsPlayed.get(team1.name).has(candidate.name) && !opponentsPlayed.get(candidate.name).has(team1.name)) {
+                        team2 = candidate;
+                        availableTeams.splice(i, 1);
                         break;
                     }
                 }
-            }
-            allMatches.push({ round, matches: currentRoundMatches });
-        }
-        renderMatches();
-    }
-    
-    function renderMatches() {
-        roundsSection.innerHTML = '<div class="card-header">3. Parties à jouer</div>';
-        allMatches.forEach(round => {
-            const roundDiv = document.createElement('div');
-            roundDiv.classList.add('match-card');
-            roundDiv.innerHTML = `<div class="match-header">Tour ${round.round}</div>`;
 
-            if (round.matches.length === 0) {
-                roundDiv.innerHTML += `<div>Tous les matchs ont été joués ou il n'y a pas de nouvelles combinaisons.</div>`;
-            } else {
-                round.matches.forEach(match => {
-                    const matchForm = document.createElement('div');
-                    matchForm.classList.add('score-form');
-                    matchForm.innerHTML = `
-                        <div>
-                            <label>${match.team1}</label>
-                            <input type="number" value="0" min="0" data-team="${match.team1}">
-                        </div>
-                        <div>
-                            <label>${match.team2}</label>
-                            <input type="number" value="0" min="0" data-team="${match.team2}">
-                        </div>
-                        <button class="button button-success" onclick="recordGame(this, '${match.team1}', '${match.team2}')">Enregistrer</button>
-                    `;
-                    roundDiv.appendChild(matchForm);
-                });
+                // Si pas d'adversaire idéal, on prend le premier disponible (pour éviter de bloquer)
+                if (!team2) {
+                    if (availableTeams.length > 0) {
+                        team2 = availableTeams.shift();
+                    }
+                }
+
+                if (team2) {
+                    currentRound.push({ team1, team2, score1: 0, score2: 0, played: false });
+                    opponentsPlayed.get(team1.name).add(team2.name);
+                    opponentsPlayed.get(team2.name).add(team1.name);
+                }
             }
-            
-            roundsSection.appendChild(roundDiv);
+            rounds.push(currentRound);
+        }
+    }
+
+    function displayRounds() {
+        const roundsContainer = document.getElementById('roundsContainer');
+        roundsContainer.innerHTML = '';
+        rounds.forEach((round, index) => {
+            const roundDiv = document.createElement('div');
+            roundDiv.innerHTML = `<h3>Tour ${index + 1}</h3>`;
+            round.forEach((match, matchIndex) => {
+                const matchCard = document.createElement('div');
+                matchCard.className = 'match-card';
+                matchCard.innerHTML = `
+                    <p><strong>Match ${matchIndex + 1}:</strong> ${match.team1.name} vs ${match.team2.name}</p>
+                    <div class="form-group">
+                        <label>${match.team1.name} :</label>
+                        <input type="number" min="0" value="${match.score1}" id="score-${index}-${matchIndex}-1">
+                    </div>
+                    <div class="form-group">
+                        <label>${match.team2.name} :</label>
+                        <input type="number" min="0" value="${match.score2}" id="score-${index}-${matchIndex}-2">
+                    </div>
+                    <button onclick="submitScores(${index}, ${matchIndex})">Valider les scores</button>
+                `;
+                roundDiv.appendChild(matchCard);
+            });
+            roundsContainer.appendChild(roundDiv);
         });
     }
 
-    function recordGame(button, team1, team2) {
-        const parent = button.closest('.score-form');
-        const score1 = parseInt(parent.querySelector(`input[data-team="${team1}"]`).value);
-        const score2 = parseInt(parent.querySelector(`input[data-team="${team2}"]`).value);
+    function submitScores(roundIndex, matchIndex) {
+        const score1 = parseInt(document.getElementById(`score-${roundIndex}-${matchIndex}-1`).value);
+        const score2 = parseInt(document.getElementById(`score-${roundIndex}-${matchIndex}-2`).value);
         
-        if (isNaN(score1) || isNaN(score2) || score1 < 0 || score2 < 0) {
-            alert("Veuillez saisir des scores valides.");
+        if (isNaN(score1) || isNaN(score2)) {
+            alert("Veuillez entrer des scores valides.");
             return;
         }
 
-        // Mise à jour du classement
-        updateRanking(team1, score1, team2, score2);
-
-        // Désactiver les champs après enregistrement
-        parent.querySelectorAll('input').forEach(input => input.disabled = true);
-        button.disabled = true;
-        button.textContent = 'Enregistré';
-        button.classList.remove('button-success');
-        button.classList.add('button-secondary');
+        const match = rounds[roundIndex][matchIndex];
+        match.score1 = score1;
+        match.score2 = score2;
+        match.played = true;
+        
+        updateScoreboard();
     }
 
-    function updateRanking(team1, score1, team2, score2) {
-        if (score1 > score2) {
-            ranking[team1].points += 2;
-            ranking[team1].wins++;
-            ranking[team2].losses++;
-        } else if (score2 > score1) {
-            ranking[team2].points += 2;
-            ranking[team2].wins++;
-            ranking[team1].losses++;
-        } else {
-            ranking[team1].points++;
-            ranking[team2].points++;
-        }
-        updateRankingTable();
+    function updateScoreboard() {
+        teams.forEach(team => {
+            team.victories = 0;
+            team.score = 0;
+        });
+
+        rounds.forEach(round => {
+            round.forEach(match => {
+                if (match.played) {
+                    match.team1.score += match.score1;
+                    match.team2.score += match.score2;
+                    if (match.score1 > match.score2) {
+                        match.team1.victories += 1;
+                    } else if (match.score2 > match.score1) {
+                        match.team2.victories += 1;
+                    }
+                }
+            });
+        });
+        
+        showScoreboard();
     }
 
-    function updateRankingTable() {
-        const sortedRanking = Object.entries(ranking).sort(([, a], [, b]) => {
-            if (b.points !== a.points) {
-                return b.points - a.points;
+    function showScoreboard() {
+        hideAllSections();
+        document.getElementById('scoreboard-section').classList.remove('hidden');
+        
+        teams.sort((a, b) => {
+            if (b.victories !== a.victories) {
+                return b.victories - a.victories;
             }
-            return b.wins - a.wins;
+            return b.score - a.score;
         });
 
-        rankingBody.innerHTML = '';
-        sortedRanking.forEach(([teamName, stats], index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
+        const scoreboardDiv = document.getElementById('scoreboard');
+        scoreboardDiv.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classement</th>
+                        <th>Équipe</th>
+                        <th>Victoires</th>
+                        <th>Total Points</th>
+                    </tr>
+                </thead>
+                <tbody id="scoreboardBody"></tbody>
+            </table>
+        `;
+        const scoreboardBody = document.getElementById('scoreboardBody');
+        teams.forEach((team, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
                 <td>${index + 1}</td>
-                <td>${teamName}</td>
-                <td>${stats.points}</td>
-                <td>${stats.wins}</td>
-                <td>${stats.losses}</td>
+                <td><strong>${team.name}</strong> (${team.players.join(', ')})</td>
+                <td>${team.victories}</td>
+                <td>${team.score}</td>
             `;
-            rankingBody.appendChild(tr);
+            scoreboardBody.appendChild(row);
         });
     }
+
 </script>
 
 </body>
