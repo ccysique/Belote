@@ -8,7 +8,8 @@
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
-            margin: 20px;
+            margin: 0;
+            padding: 20px;
             background-color: #f4f4f4;
             color: #333;
         }
@@ -41,6 +42,12 @@
             cursor: pointer;
             font-size: 16px;
         }
+        button.secondary {
+            background-color: #95a5a6;
+        }
+        button.secondary:hover {
+            background-color: #7f8c8d;
+        }
         button:hover {
             background-color: #2980b9;
         }
@@ -58,10 +65,28 @@
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .match-card input[type="number"] {
-            width: 45%;
-            display: inline-block;
+        .match-card .score-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .match-card .score-input label {
+            flex: 1;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .match-card .score-input input {
+            flex: 1;
+            width: auto;
+            margin: 0;
+        }
+        .match-card button {
+            width: auto;
+            align-self: flex-end;
         }
         table {
             width: 100%;
@@ -78,6 +103,17 @@
         }
         .hidden {
             display: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .match-card .score-input {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .match-card .score-input label {
+                text-align: left;
+            }
         }
     </style>
 </head>
@@ -129,12 +165,13 @@
     <section id="tournament-rounds" class="hidden">
         <h2>3. Matchs par tour</h2>
         <div id="roundsContainer"></div>
-        <button onclick="showScoreboard()">Afficher le classement</button>
+        <button onclick="showScoreboard()" id="showScoreboardButton">Afficher le classement final</button>
     </section>
 
     <section id="scoreboard-section" class="hidden">
         <h2>4. Classement</h2>
         <div class="scoreboard" id="scoreboard"></div>
+        <button onclick="resetApp()" class="secondary">Recommencer un tournoi</button>
     </section>
 </div>
 
@@ -143,7 +180,6 @@
     let rounds = [];
     let numRounds = 1;
 
-    // Fonctions utilitaires
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -157,6 +193,16 @@
         document.getElementById('tournament-rounds').classList.add('hidden');
         document.getElementById('scoreboard-section').classList.add('hidden');
         document.getElementById('test-mode').classList.add('hidden');
+    }
+
+    function resetApp() {
+        teams = [];
+        rounds = [];
+        numRounds = 1;
+        document.getElementById('test-mode').classList.remove('hidden');
+        document.getElementById('setup').classList.remove('hidden');
+        document.getElementById('teamsManual').value = '';
+        document.getElementById('participantsList').value = '';
     }
 
     function runTestMode() {
@@ -173,7 +219,6 @@
             return;
         }
 
-        // Génération de noms de participants pour le test
         const participantNames = "Alice,Bob,Charlie,David,Eve,Frank,Grace,Heidi,Ivan,Judy,Karen,Liam,Mike,Nora,Oscar,Pamela,Quentin,Rose,Steve,Tina,Ulysse,Vivian,Walter,Xavier,Yara,Zack".split(',');
         const testParticipants = [];
         for(let i = 0; i < numTeams * 2; i++) {
@@ -193,17 +238,18 @@
 
         numRounds = testNumRounds;
         hideAllSections();
-        startTournament();
+        document.getElementById('tournament-rounds').classList.remove('hidden');
+        generateRounds();
         
-        // Saisie des scores aléatoires pour le test
         rounds.forEach(round => {
             round.forEach(match => {
-                match.score1 = Math.floor(Math.random() * 200) + 50; // Scores entre 50 et 249
+                match.score1 = Math.floor(Math.random() * 200) + 50;
                 match.score2 = Math.floor(Math.random() * 200) + 50;
                 match.played = true;
             });
         });
-        updateScoreboard();
+        
+        displayRounds();
     }
 
     function generateRandomTeams() {
@@ -278,7 +324,7 @@
 
     function generateRounds() {
         rounds = [];
-        let allTeams = [...teams];
+        const allTeams = [...teams];
         
         const opponentsPlayed = new Map();
         teams.forEach(team => opponentsPlayed.set(team.name, new Set()));
@@ -292,7 +338,6 @@
                 const team1 = availableTeams.shift();
                 let team2 = null;
 
-                // Trouver un adversaire qui n'a pas encore été rencontré
                 for (let i = 0; i < availableTeams.length; i++) {
                     const candidate = availableTeams[i];
                     if (!opponentsPlayed.get(team1.name).has(candidate.name) && !opponentsPlayed.get(candidate.name).has(team1.name)) {
@@ -302,11 +347,8 @@
                     }
                 }
 
-                // Si pas d'adversaire idéal, on prend le premier disponible (pour éviter de bloquer)
-                if (!team2) {
-                    if (availableTeams.length > 0) {
-                        team2 = availableTeams.shift();
-                    }
+                if (!team2 && availableTeams.length > 0) {
+                    team2 = availableTeams.shift();
                 }
 
                 if (team2) {
@@ -330,11 +372,11 @@
                 matchCard.className = 'match-card';
                 matchCard.innerHTML = `
                     <p><strong>Match ${matchIndex + 1}:</strong> ${match.team1.name} vs ${match.team2.name}</p>
-                    <div class="form-group">
+                    <div class="score-input">
                         <label>${match.team1.name} :</label>
                         <input type="number" min="0" value="${match.score1}" id="score-${index}-${matchIndex}-1">
                     </div>
-                    <div class="form-group">
+                    <div class="score-input">
                         <label>${match.team2.name} :</label>
                         <input type="number" min="0" value="${match.score2}" id="score-${index}-${matchIndex}-2">
                     </div>
@@ -359,34 +401,10 @@
         match.score1 = score1;
         match.score2 = score2;
         match.played = true;
-        
-        updateScoreboard();
-    }
-
-    function updateScoreboard() {
-        teams.forEach(team => {
-            team.victories = 0;
-            team.score = 0;
-        });
-
-        rounds.forEach(round => {
-            round.forEach(match => {
-                if (match.played) {
-                    match.team1.score += match.score1;
-                    match.team2.score += match.score2;
-                    if (match.score1 > match.score2) {
-                        match.team1.victories += 1;
-                    } else if (match.score2 > match.score1) {
-                        match.team2.victories += 1;
-                    }
-                }
-            });
-        });
-        
-        showScoreboard();
     }
 
     function showScoreboard() {
+        updateScoreboard();
         hideAllSections();
         document.getElementById('scoreboard-section').classList.remove('hidden');
         
@@ -421,6 +439,27 @@
                 <td>${team.score}</td>
             `;
             scoreboardBody.appendChild(row);
+        });
+    }
+    
+    function updateScoreboard() {
+        teams.forEach(team => {
+            team.victories = 0;
+            team.score = 0;
+        });
+
+        rounds.forEach(round => {
+            round.forEach(match => {
+                if (match.played) {
+                    match.team1.score += match.score1;
+                    match.team2.score += match.score2;
+                    if (match.score1 > match.score2) {
+                        match.team1.victories += 1;
+                    } else if (match.score2 > match.score1) {
+                        match.team2.victories += 1;
+                    }
+                }
+            });
         });
     }
 
